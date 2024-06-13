@@ -24,7 +24,23 @@ let users = [
 
 // GET request: Retrieve all users
 router.get("/", (req, res) => {
-  res.send(JSON.stringify({ users }, null, 4)); //This line is to be replaced with actual return value
+  res.send(JSON.stringify({ users }, null, 4));
+});
+
+// GET request: sorting users by DOB
+const getDateFromString = (strDate) => {
+  let [dd, mm, yyyy] = strDate.split("-");
+  return new Date(`${yyyy}/${mm}/${dd}`);
+};
+
+// Sort data by date in ascending order (oldest to newest)
+router.get("/sort", (req, res) => {
+  let sortedUsers = users.sort((a, b) => {
+    let date1 = getDateFromString(a.DOB);
+    let date2 = getDateFromString(b.DOB);
+    return date1 - date2;
+  });
+  res.send(JSON.stringify({ users }, null, 4));
 });
 
 // GET by specific ID request: Retrieve a single user with email ID
@@ -81,6 +97,15 @@ router.delete("/:email", (req, res) => {
   const email = req.params.email;
   users = users.filter((user) => user.email !== email);
   res.send(`User with email: ${email} was deleted.`); //This line is to be replaced with actual return value
+});
+
+// GET request: Get users by last name
+router.get("/lastName/:lastName", (req, res) => {
+  const lastName = req.params.lastName;
+  const lastNameFilter = users.filter((user) => user.lastName === lastName);
+  if (lastNameFilter.length > 0) {
+    res.status(200).send(lastNameFilter);
+  } else res.status(404).send("No users found");
 });
 
 module.exports = router;
